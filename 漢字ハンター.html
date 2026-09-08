@@ -16,7 +16,7 @@
     --panel-bg: rgba(255, 255, 255, 0.95);
     --text-main: #0f172a;
     --text-sub: #475569;
-    --kanji-color: #e11d48;
+    --kanji-color: #e11d48; /* デフォルト漢字カラー */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hiragino Sans', 'Meiryo', sans-serif; user-select: none; }
@@ -60,10 +60,6 @@
   }
   .btn-action:hover { transform: translateY(-2px); }
 
-  .btn-raid {
-    background: linear-gradient(180deg, #a855f7 0%, #6b21a8 100%);
-  }
-
   .nav-btn {
     background: #f1f5f9;
     border: 2px solid #cbd5e1;
@@ -94,14 +90,14 @@
   }
   .exp-bar-container {
     width: 100%;
-    height: 100%;
+    height: 10px;
     background: rgba(255, 255, 255, 0.3);
     border-radius: 5px;
     overflow: hidden;
     position: relative;
   }
   .exp-bar-fill {
-    height: 10px;
+    height: 100%;
     background: #22c55e;
     width: 0%;
     transition: width 0.4s ease;
@@ -127,13 +123,8 @@
 
   /* BATTLE SCREEN & EFFECTS */
   .battle-area { background: #f0f9ff; border-radius: 16px; padding: 15px; border: 2px solid #7dd3fc; text-align: center; position: relative; overflow: hidden; }
-  .monster-container { display: inline-block; transition: transform 0.2s; }
-  .monster-icon { font-size: 4.5rem; display: inline-block; transition: filter 0.3s; }
+  .monster-icon { font-size: 4.5rem; transition: transform 0.1s; display: inline-block; }
   
-  /* Variant Effects */
-  .shiny-effect { filter: drop-shadow(0 0 15px #f59e0b) hue-rotate(180deg) saturate(200%); }
-  .king-size { transform: scale(1.4); }
-
   /* Shake animation */
   .shake { animation: shakeAnim 0.4s ease-in-out; }
   @keyframes shakeAnim {
@@ -195,7 +186,7 @@
   .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
   .modal-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 100; }
-  .modal-card { background: #fff; border-radius: 16px; padding: 20px; text-align: center; max-width: 420px; width: 90%; }
+  .modal-card { background: #fff; border-radius: 16px; padding: 20px; text-align: center; max-width: 400px; width: 90%; }
 
   /* FULLSCREEN WARNING CUT-IN */
   .cutin-overlay {
@@ -214,10 +205,6 @@
   .zukan-card .z-icon { font-size: 2.5rem; }
   .zukan-card .z-name { font-size: 0.75rem; font-weight: bold; margin-top: 4px; }
   .zukan-card .z-rare { font-size: 0.65rem; color: #f59e0b; font-weight: bold; }
-  .zukan-badges { display: flex; justify-content: center; gap: 4px; margin-top: 4px; }
-  .badge { font-size: 0.6rem; padding: 1px 4px; border-radius: 4px; font-weight: bold; }
-  .badge-shiny { background: #fef08a; color: #b45309; border: 1px solid #f59e0b; }
-  .badge-king { background: #f43f5e; color: #fff; }
 
   /* TITLE ITEM UI */
   .title-card {
@@ -249,13 +236,13 @@
     <button class="btn-action" style="font-size:1.2rem; padding:12px 30px;" onclick="closeCutin()">開戦！</button>
   </div>
 
-  <!-- MODAL: GENERIC / LOGIN BONUS / EXPLANATIONS -->
-  <div class="modal-overlay" id="modal-dialog">
+  <!-- MODAL: LOGIN BONUS -->
+  <div class="modal-overlay" id="modal-login">
     <div class="modal-card">
-      <h2 id="modal-title" style="color:#f59e0b;">タイトル</h2>
-      <p id="modal-desc" style="margin: 15px 0; font-size: 0.95rem; line-height: 1.5; color: var(--text-main);"></p>
-      <div id="modal-subcontent"></div>
-      <button class="btn-action" id="modal-btn" style="margin-top: 15px;" onclick="closeGenericModal()">了解して進む</button>
+      <h2 style="color:#f59e0b;">🎁 ログインボーナス</h2>
+      <p style="margin: 15px 0;">今日も勉強がんばろう！</p>
+      <div style="font-size: 2.5rem; font-weight: bold; color: #b45309;">+1000 G</div>
+      <button class="btn-action" style="margin-top: 15px;" onclick="closeModal('modal-login')">受け取る</button>
     </div>
   </div>
 
@@ -312,15 +299,15 @@
     <div class="quest-layout" style="margin-top:10px;">
       <div>
         <h3 style="color:#0284c7; margin-bottom:8px;">⚔️ メインクエスト</h3>
-        <div class="quest-card" onclick="handleNormalQuestStart('easy')">
+        <div class="quest-card" onclick="startBattle('easy')">
           <strong>🌱 初級クエスト</strong>
           <p style="font-size:0.8rem; color:var(--text-sub);">4択問題 / ひらがな選択</p>
         </div>
-        <div class="quest-card" style="margin-top:8px;" onclick="handleNormalQuestStart('normal')">
+        <div class="quest-card" style="margin-top:8px;" onclick="startBattle('normal')">
           <strong>⚔️ 中級クエスト</strong>
           <p style="font-size:0.8rem; color:var(--text-sub);">標準難易度 4択バトル</p>
         </div>
-        <div class="quest-card" style="margin-top:8px;" onclick="handleNormalQuestStart('hard')">
+        <div class="quest-card" style="margin-top:8px;" onclick="startBattle('hard')">
           <strong>🔥 上級・キーボード記述</strong>
           <p style="font-size:0.8rem; color:var(--text-sub);" id="hard-clear-status">直接入力で攻撃！（クリア: 0/5）</p>
         </div>
@@ -337,11 +324,6 @@
         <div class="quest-card" style="margin-top:8px; display:none;" id="card-god" onclick="startBattle('god')">
           <strong>⚡ 伝説の神級（裏ボス）</strong>
           <p style="font-size:0.8rem; color:var(--text-sub);">1問15秒制限の極限タイムアタック！</p>
-        </div>
-
-        <div class="quest-card" style="margin-top:8px;" onclick="handleRaidClick()">
-          <strong style="color:#8b5cf6;">⚔️ シーズン限定レイド</strong>
-          <p style="font-size:0.8rem; color:var(--text-sub);">強力なレイドボスに挑め！</p>
         </div>
         
         <h3 style="color:#0284c7; margin-top:15px; margin-bottom:8px;">✨ 特殊バトル</h3>
@@ -369,9 +351,7 @@
       <div class="slash-effect" id="slash-ef"></div>
       <div class="damage-pop" id="damage-ef">-100</div>
 
-      <div class="monster-container" id="m-container">
-        <div class="monster-icon" id="m-icon">👾</div>
-      </div>
+      <div class="monster-icon" id="m-icon">👾</div>
       <h3 id="m-name" style="color:#0284c7;">モンスター</h3>
       <div class="hp-bar-container">
         <div class="hp-bar-fill" id="m-hp-fill"></div>
@@ -382,7 +362,7 @@
     <!-- ITEM USE BAR -->
     <div class="item-bar">
       <button class="btn-item" onclick="useItem('glasses')">🕶️ カンニンググラス (<span id="item-glasses-count">0</span>)</button>
-      <button class="btn-item" onclick="useItem('timeStop')">⏰ タイムストップの時計 (<span id="item-timeStop-count">0</span>)</button>
+      <button class="btn-item" onclick="useItem('timeStop')">⏰ タイムストップ (<span id="item-timeStop-count">0</span>)</button>
       <button class="btn-item" onclick="useItem('expBook')">📖 経験値2倍の書 (<span id="item-expBook-count">0</span>)</button>
     </div>
 
@@ -401,7 +381,6 @@
       <p id="res-exp" style="font-size:1.2rem; font-weight:bold; color:#b45309;">獲得EXP: +0</p>
       <p id="res-gold" style="font-size:1.2rem; font-weight:bold; color:#d97706;">獲得ゴールド: +0 G</p>
       <p id="res-acc" style="margin-top:5px; font-weight:bold;">正答率: 0%</p>
-      <div id="res-bonus" style="margin-top:10px; font-weight:bold; color:#8b5cf6;"></div>
     </div>
     <button class="btn-action" onclick="showScreen('screen-select')">ロビーへ戻る</button>
   </div>
@@ -426,15 +405,15 @@
         <h4>📅 デイリーミッション</h4>
         <div id="daily-list" style="margin-top:8px;"></div>
 
-        <!-- 漢字カラーチェンジ設定エリア -->
+        <!-- 漢字カラーチェンジ設定エリア（所持している場合表示） -->
         <div id="color-change-panel" style="margin-top:20px; display:none; border-top:2px solid #e2e8f0; padding-top:10px;">
           <h4>🎨 漢字カラー設定</h4>
           <p style="font-size:0.75rem; color:var(--text-sub); margin-bottom:8px;">漢字の強調テーマカラーを変更できます</p>
-          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <div class="color-btn" style="background:#f59e0b;" onclick="setKanjiColor('#f59e0b')" title="黄金"></div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="color-btn" style="background:#e11d48;" onclick="setKanjiColor('#e11d48')" title="ローズ"></div>
+            <div class="color-btn" style="background:#f59e0b;" onclick="setKanjiColor('#f59e0b')" title="ゴールド"></div>
             <div class="color-btn" style="background:#10b981;" onclick="setKanjiColor('#10b981')" title="エメラルド"></div>
             <div class="color-btn" style="background:#8b5cf6;" onclick="setKanjiColor('#8b5cf6')" title="ネオンパープル"></div>
-            <div class="color-btn" style="background:#e11d48;" onclick="setKanjiColor('#e11d48')" title="ローズ"></div>
             <div class="color-btn" style="background:#06b6d4;" onclick="setKanjiColor('#06b6d4')" title="シアン"></div>
           </div>
         </div>
@@ -479,6 +458,7 @@
 // ==========================================
 const RANGE_START = 1;
 const RANGE_END = 54;
+// ==========================================
 
 // 🏆 称号データ
 const TITLE_MASTER_DATA = [
@@ -529,10 +509,7 @@ const MONSTER_DATABASE = [
   { id: 'm_god2', name: '終焉竜・デスガンジ', icon: '🐉', type: 'god', rare: 5 },
   { id: 'm_god3', name: '幻獣・フェニックス', icon: '🐦‍🔥', type: 'god', rare: 5 },
   { id: 'm_god4', name: '暗黒魔導王', icon: '🔮', type: 'god', rare: 5 },
-  { id: 'm_god5', name: '創世主・カンジオー', icon: '👑', type: 'god', rare: 5 },
-
-  // ⚔️ レイド用 (1体)
-  { id: 'm_raid', name: '邪竜ヴォルガノス', icon: '🐲', type: 'raid', rare: 5, expMult: 8, goldMult: 8 }
+  { id: 'm_god5', name: '創世主・カンジオー', icon: '👑', type: 'god', rare: 5 }
 ];
 
 const rawText = `
@@ -568,7 +545,7 @@ const rawText = `
 30,局,局外（きょくがい）,局地（きょくち）
 31,勉,勉強（べんきょう）,勉学（べんがく）
 32,強,強い（つよい）,強調（きょうちょう）,強風（きょうふう）
-33,问,問題（もんだい）,問う（とう）,質問（しつもん）
+33,問,問題（もんだい）,問う（とう）,質問（しつもん）
 34,題,宿題（しゅくだい）,題名（だいめい）
 35,答,答え（こたえ）,回答（かいとう）
 36,親,親（おや）,親切（しんせつ）,両親（りょうしん）
@@ -597,7 +574,7 @@ let scopedQuestions = [];
 
 let userState = {
   exp: 0,
-  gold: 10000,
+  gold: 1000,
   items: { 
     glasses: 0, 
     timeStop: 0, 
@@ -613,17 +590,14 @@ let userState = {
   wrongHistory: [],
   dailyProgress: 0,
   clears: { hard: 0, oni: 0, god: 0 },
-  defeatedMonsters: [],
-  variants: {}, // { monsterId: { shiny: true, king: true } }
-  shownVariantInfo: false,
-  shownRaidInfo: false
+  defeatedMonsters: []
 };
 
-// 出現中のモンスター情報をクエストごとに保持（クリアするまで固定）
+// 連続出現管理データ
 let currentEncounters = {
-  normal: { monster: null, isShiny: false, isKing: false },
-  oni: { monster: null, isShiny: false, isKing: false },
-  god: { monster: null, isShiny: false, isKing: false }
+  normal: { monster: null, remaining: 0 },
+  oni: { monster: null, remaining: 0 },
+  god: { monster: null, remaining: 0 }
 };
 
 let currentBattle = {
@@ -633,17 +607,12 @@ let currentBattle = {
   correctCount: 0,
   isDoubleExp: false,
   monster: null,
-  isShiny: false,
-  isKing: false,
   monsterHp: 100,
   timer: null,
   timeLeft: 15,
   maxTime: 15,
   isProcessing: false
 };
-
-let pendingQuestMode = null;
-let genericModalCallback = null;
 
 window.onload = () => {
   parseDatabase();
@@ -722,7 +691,6 @@ function loadData() {
     if(!userState.clears) userState.clears = { hard: 0, oni: 0, god: 0 };
     if(!userState.defeatedMonsters) userState.defeatedMonsters = [];
     if(!userState.items) userState.items = { glasses: 0, timeStop: 0, rareFlute: 0, kanjiColor: false, expBook: 0 };
-    if(!userState.variants) userState.variants = {};
     if(userState.kanjiColorHex) document.documentElement.style.setProperty('--kanji-color', userState.kanjiColorHex);
   }
 }
@@ -731,65 +699,13 @@ function checkLoginBonus() {
   const today = new Date().toLocaleDateString();
   if(userState.lastLogin !== today) {
     userState.lastLogin = today;
-    userState.gold += 3000;
+    userState.gold += 1000;
     userState.dailyProgress = 0;
     saveData();
-    openGenericModal("🎁 ログインボーナス", "今日も勉強がんばろう！<br><br><strong style='font-size:1.5rem; color:#b45309;'>+3000 G</strong>", "受け取る");
+    document.getElementById('modal-login').style.display = 'flex';
   }
 }
-
-function openGenericModal(title, descHtml, btnText = "了解して進む", callback = null) {
-  document.getElementById('modal-title').innerHTML = title;
-  document.getElementById('modal-desc').innerHTML = descHtml;
-  document.getElementById('modal-btn').innerText = btnText;
-  genericModalCallback = callback;
-  document.getElementById('modal-dialog').style.display = 'flex';
-}
-
-function closeGenericModal() {
-  document.getElementById('modal-dialog').style.display = 'none';
-  if(genericModalCallback) {
-    const cb = genericModalCallback;
-    genericModalCallback = null;
-    cb();
-  }
-}
-
-function isZukanComplete() {
-  const baseMonsters = MONSTER_DATABASE.filter(m => m.type !== 'raid');
-  return baseMonsters.every(m => userState.defeatedMonsters.includes(m.id));
-}
-
-function handleNormalQuestStart(mode) {
-  if (isZukanComplete() && !userState.shownVariantInfo) {
-    userState.shownVariantInfo = true;
-    saveData();
-    pendingQuestMode = mode;
-    openGenericModal(
-      "✨ 変異体（色違い・サイズ）解禁！",
-      "🎉 <strong>図鑑コンプリートおめでとうございます！</strong><br><br>これ以降のクエストでは、一定確率で<strong>「✨ 色違い」</strong>や<strong>「巨大(キング)サイズ」</strong>の変異体モンスターが出現・ドロップするようになります！<br>最強の図鑑を目指しましょう！",
-      "了解して進む",
-      () => { startBattle(pendingQuestMode); }
-    );
-  } else {
-    startBattle(mode);
-  }
-}
-
-function handleRaidClick() {
-  if (!userState.shownRaidInfo) {
-    userState.shownRaidInfo = true;
-    saveData();
-    openGenericModal(
-      "⚔️ シーズンレイドについて",
-      "<strong>【期間限定レイド開催！】</strong><br><br>強力な超大型レイドボスに挑戦する特別モードです。<br>討伐に成功すると膨大なEXPとゴールドを獲得できます！万全の準備で挑みましょう！",
-      "了解して進む",
-      () => { startBattle('raid'); }
-    );
-  } else {
-    startBattle('raid');
-  }
-}
+function closeModal(id) { document.getElementById(id).style.display = 'none'; updateUI(); }
 
 function updateUI() {
   const level = Math.floor(userState.exp / 100) + 1;
@@ -831,66 +747,51 @@ function updateUI() {
   }
 }
 
-function getEncounterForMode(mode) {
-  if(mode === 'raid') {
-    return {
-      monster: MONSTER_DATABASE.find(m => m.id === 'm_raid'),
-      isShiny: false,
-      isKing: false
-    };
-  }
-
+// 🎯 モンスター抽選ロジック（笛の効果に対応）
+function selectMonsterForMode(mode) {
   let categoryKey = 'normal';
   if(mode === 'oni') categoryKey = 'oni';
   if(mode === 'god') categoryKey = 'god';
 
-  if (currentEncounters[categoryKey].monster) {
-    return currentEncounters[categoryKey];
-  }
-
-  let chosenMonster = null;
-
+  // レアモンスターの笛がアクティブで通常クエストの場合
   if(categoryKey === 'normal' && userState.fluteActive) {
-    userState.fluteActive = false;
+    userState.fluteActive = false; // 1回で消費
     saveData();
     const rareList = MONSTER_DATABASE.filter(m => m.type === 'rare');
-    chosenMonster = rareList[Math.floor(Math.random() * rareList.length)];
-  } else if(categoryKey === 'normal') {
+    const chosen = rareList[Math.floor(Math.random() * rareList.length)];
+    currentEncounters[categoryKey].monster = chosen;
+    currentEncounters[categoryKey].remaining = Math.floor(Math.random() * 3) + 1;
+    return chosen;
+  }
+
+  // まだ残り出現回数が残っている場合、同じモンスターを継続出現
+  if(currentEncounters[categoryKey].monster && currentEncounters[categoryKey].remaining > 0) {
+    currentEncounters[categoryKey].remaining--;
+    return currentEncounters[categoryKey].monster;
+  }
+
+  // 新規抽選
+  let chosen = null;
+
+  if(categoryKey === 'normal') {
+    // 15%の確率で希少レアモンスター出現
     const isRare = Math.random() < 0.15;
     if(isRare) {
       const rareList = MONSTER_DATABASE.filter(m => m.type === 'rare');
-      chosenMonster = rareList[Math.floor(Math.random() * rareList.length)];
+      chosen = rareList[Math.floor(Math.random() * rareList.length)];
     } else {
       const normalList = MONSTER_DATABASE.filter(m => m.type === 'normal');
-      chosenMonster = normalList[Math.floor(Math.random() * normalList.length)];
+      chosen = normalList[Math.floor(Math.random() * normalList.length)];
     }
   } else {
     const list = MONSTER_DATABASE.filter(m => m.type === categoryKey);
-    chosenMonster = list[Math.floor(Math.random() * list.length)];
+    chosen = list[Math.floor(Math.random() * list.length)];
   }
 
-  let shiny = false;
-  let king = false;
-  if (isZukanComplete()) {
-    if (Math.random() < 0.25) shiny = true;
-    if (Math.random() < 0.25) king = true;
-  }
+  currentEncounters[categoryKey].monster = chosen;
+  currentEncounters[categoryKey].remaining = Math.floor(Math.random() * 3) + 1;
 
-  currentEncounters[categoryKey] = {
-    monster: chosenMonster,
-    isShiny: shiny,
-    isKing: king
-  };
-
-  return currentEncounters[categoryKey];
-}
-
-function resetEncounter(mode) {
-  let categoryKey = 'normal';
-  if(mode === 'oni') categoryKey = 'oni';
-  if(mode === 'god') categoryKey = 'god';
-
-  currentEncounters[categoryKey] = { monster: null, isShiny: false, isKing: false };
+  return chosen;
 }
 
 function startBattle(mode) {
@@ -901,10 +802,7 @@ function startBattle(mode) {
   currentBattle.monsterHp = 100;
   currentBattle.isProcessing = false;
 
-  const encounter = getEncounterForMode(mode);
-  currentBattle.monster = encounter.monster;
-  currentBattle.isShiny = encounter.isShiny;
-  currentBattle.isKing = encounter.isKing;
+  currentBattle.monster = selectMonsterForMode(mode);
 
   if(mode === 'weakness') {
     if(userState.wrongHistory.length === 0) return alert("苦手問題はありません！");
@@ -915,9 +813,7 @@ function startBattle(mode) {
     currentBattle.qList = shuffled.slice(0, 10);
   }
 
-  if(mode === 'raid') {
-    showCutin('⚔️ RAID WARNING!', `レイドボス『${currentBattle.monster.name}』が出現！`);
-  } else if(currentBattle.monster.type === 'rare') {
+  if(currentBattle.monster.type === 'rare') {
     showCutin('✨ 希少モンスター遭遇！', `レア度★${currentBattle.monster.rare} 『${currentBattle.monster.name}』が出現！`);
   } else if(mode === 'oni') {
     showCutin('👹 WARNING!', `鬼級『${currentBattle.monster.name}』が出現！`);
@@ -941,40 +837,21 @@ function closeCutin() {
   renderQuestion();
 }
 
+// ⚔️ 戦闘描画
 function renderQuestion() {
   currentBattle.isProcessing = false;
   const q = currentBattle.qList[currentBattle.qIndex];
   
   document.getElementById('q-counter').innerText = `第 ${currentBattle.qIndex + 1} / ${currentBattle.qList.length} 問`;
-  
-  const mIconEl = document.getElementById('m-icon');
-  const mContainer = document.getElementById('m-container');
-  
-  mIconEl.innerText = currentBattle.monster.icon;
-  
-  if(currentBattle.isShiny) {
-    mIconEl.classList.add('shiny-effect');
-  } else {
-    mIconEl.classList.remove('shiny-effect');
-  }
-
-  if(currentBattle.isKing) {
-    mContainer.classList.add('king-size');
-  } else {
-    mContainer.classList.remove('king-size');
-  }
-
-  let displayName = currentBattle.monster.name;
-  if(currentBattle.isKing) displayName = `キング${displayName}`;
-  if(currentBattle.isShiny) displayName = `✨ ${displayName}`;
-
-  document.getElementById('m-name').innerText = displayName;
+  document.getElementById('m-icon').innerText = currentBattle.monster.icon;
+  document.getElementById('m-name').innerText = currentBattle.monster.name;
   document.getElementById('m-hp-fill').style.width = `${currentBattle.monsterHp}%`;
 
-  const regex = new RegExp(q.kanji, 'g');
-  const highlightedWord = q.word.replace(regex, `<span>${q.kanji}</span>`);
+  // コンテキスト（漢字強調表示）
+  const highlightedWord = q.word.replace(q.kanji, `<span>${q.kanji}</span>`);
   document.getElementById('q-context').innerHTML = `【${highlightedWord}】の読み方は？`;
 
+  // 所持アイテム数の更新
   document.getElementById('item-glasses-count').innerText = userState.items.glasses;
   document.getElementById('item-timeStop-count').innerText = userState.items.timeStop;
   document.getElementById('item-expBook-count').innerText = userState.items.expBook;
@@ -993,6 +870,7 @@ function renderQuestion() {
     inputGrid.style.display = 'none';
     optGrid.innerHTML = '';
 
+    // ダミー選択肢作成
     let dummyPool = allFlatQuestions.filter(x => x.reading !== q.reading);
     dummyPool = dummyPool.sort(() => 0.5 - Math.random()).slice(0, 3);
     
@@ -1008,6 +886,7 @@ function renderQuestion() {
     });
   }
 
+  // タイマー設定 (神級のみ15秒制限)
   if(currentBattle.mode === 'god') {
     document.getElementById('timer-box').style.display = 'block';
     startTimer(15);
@@ -1030,7 +909,7 @@ function startTimer(seconds) {
 
     if(currentBattle.timeLeft <= 0) {
       stopTimer();
-      checkAnswer('');
+      checkAnswer(''); // タイムオーバーは不正解扱いに
     }
   }, 100);
 }
@@ -1063,15 +942,19 @@ function checkAnswer(selectedAns) {
     userState.stats.totalCorrect++;
     userState.dailyProgress++;
 
+    // 苦手リストから削除
     userState.wrongHistory = userState.wrongHistory.filter(item => item.id !== q.id);
 
+    // アニメーション＆ダメージ演出
     triggerAttackEffects();
 
+    // HP減少
     const damage = 100 / currentBattle.qList.length;
     currentBattle.monsterHp = Math.max(0, currentBattle.monsterHp - damage);
     document.getElementById('m-hp-fill').style.width = `${currentBattle.monsterHp}%`;
 
   } else {
+    // 不正解時は苦手リストに追加
     if(!userState.wrongHistory.some(item => item.id === q.id)) {
       userState.wrongHistory.push(q);
     }
@@ -1091,21 +974,22 @@ function checkAnswer(selectedAns) {
 }
 
 function triggerAttackEffects() {
-  const mContainer = document.getElementById('m-container');
+  const mIcon = document.getElementById('m-icon');
   const slash = document.getElementById('slash-ef');
   const dmg = document.getElementById('damage-ef');
 
-  mContainer.classList.add('shake');
+  mIcon.classList.add('shake');
   slash.classList.add('slash-active');
   dmg.classList.add('damage-active');
 
   setTimeout(() => {
-    mContainer.classList.remove('shake');
+    mIcon.classList.remove('shake');
     slash.classList.remove('slash-active');
     dmg.classList.remove('damage-active');
   }, 600);
 }
 
+// アイテム使用関数
 function useItem(type) {
   if(userState.items[type] <= 0) return alert("アイテムを持っていません！");
 
@@ -1123,10 +1007,8 @@ function useItem(type) {
     userState.items.glasses--;
   } else if(type === 'timeStop') {
     if(currentBattle.mode !== 'god') return alert("神級クエストでのみ使用可能です！");
-    // タイムストップの時計：制限時間を10秒延長
-    currentBattle.timeLeft += 10;
-    currentBattle.maxTime += 10;
-    alert("⏰ タイムストップの時計発動！ 制限時間が10秒延長されました！");
+    stopTimer();
+    alert("⏰ タイムストップ発動！タイマーを停止しました！");
     userState.items.timeStop--;
   } else if(type === 'expBook') {
     if(currentBattle.isDoubleExp) return alert("すでに効果が適用されています！");
@@ -1147,42 +1029,27 @@ function confirmEscape() {
 
 function finishBattle() {
   stopTimer();
-  resetEncounter(currentBattle.mode);
   
   const total = currentBattle.qList.length;
   const acc = (currentBattle.correctCount / total);
   
+  // 基本報酬計算
   let baseExp = currentBattle.correctCount * 15;
-  let baseGold = currentBattle.correctCount * 50;
+  let baseGold = currentBattle.correctCount * 20;
 
+  // レアモンスター倍率
   if(currentBattle.monster.expMult) baseExp *= currentBattle.monster.expMult;
   if(currentBattle.monster.goldMult) baseGold *= currentBattle.monster.goldMult;
 
-  if(currentBattle.isShiny) { baseExp *= 1.5; baseGold *= 1.5; }
-  if(currentBattle.isKing) { baseExp *= 1.5; baseGold *= 1.5; }
-
+  // 経験値2倍書
   if(currentBattle.isDoubleExp) baseExp *= 2;
 
-  baseExp = Math.floor(baseExp);
-  baseGold = Math.floor(baseGold);
-
+  // モンスター撃破判定（正答率70%以上）
   const isClear = acc >= 0.7;
-  let bonusText = '';
 
   if(isClear) {
-    const mId = currentBattle.monster.id;
-    if(!userState.defeatedMonsters.includes(mId)) {
-      userState.defeatedMonsters.push(mId);
-    }
-
-    if (!userState.variants[mId]) userState.variants[mId] = { shiny: false, king: false };
-    if (currentBattle.isShiny) {
-      userState.variants[mId].shiny = true;
-      bonusText += '✨ 色違いモンスターを獲得！ ';
-    }
-    if (currentBattle.isKing) {
-      userState.variants[mId].king = true;
-      bonusText += '👑 キングサイズモンスターを獲得！ ';
+    if(!userState.defeatedMonsters.includes(currentBattle.monster.id)) {
+      userState.defeatedMonsters.push(currentBattle.monster.id);
     }
 
     if(currentBattle.mode === 'hard') userState.clears.hard = (userState.clears.hard || 0) + 1;
@@ -1199,21 +1066,23 @@ function finishBattle() {
   userState.exp += baseExp;
   userState.gold += baseGold;
 
+  // 履歴記録
   userState.stats.history.unshift({
     date: new Date().toLocaleString(),
     mode: currentBattle.mode,
-    monster: (currentBattle.isKing ? 'キング' : '') + (currentBattle.isShiny ? '✨' : '') + currentBattle.monster.name,
+    monster: currentBattle.monster.name,
     score: `${currentBattle.correctCount}/${total}`
   });
   if(userState.stats.history.length > 10) userState.stats.history.pop();
 
+  // 称号チェック
   checkTitleUnlocks();
+
   saveData();
 
   document.getElementById('res-exp').innerText = `獲得EXP: +${baseExp}`;
   document.getElementById('res-gold').innerText = `獲得ゴールド: +${baseGold} G`;
   document.getElementById('res-acc').innerText = `正答率: ${Math.round(acc * 100)}% (${currentBattle.correctCount}/${total}問)`;
-  document.getElementById('res-bonus').innerText = bonusText;
 
   showScreen('screen-result');
 }
@@ -1221,22 +1090,23 @@ function finishBattle() {
 function checkTitleUnlocks() {
   TITLE_MASTER_DATA.forEach(t => {
     if(userState.exp >= t.reqExp && userState.equippedTitle === 'かけだしハンター') {
+      // 初期状態の場合、上位の称号があれば自動更新
       userState.equippedTitle = t.name;
     }
   });
 }
 
+// 🛒 ショップの描画＆購入処理
 function renderShop() {
   const shopList = document.getElementById('shop-list');
   shopList.innerHTML = '';
 
-  // 更新されたアイテム設定と価格
   const shopItems = [
-    { id: 'glasses', name: '🟢 カンニンググラス', desc: '4択問題で不正解の選択肢を2つ消去（50:50）', price: 5000 },
-    { id: 'timeStop', name: '🟢 タイムストップの時計', desc: '神級などの制限時間を10秒延長', price: 6000 },
-    { id: 'rareFlute', name: '🟢 レアモンスターの笛', desc: '次回のバトルで希少モンスターの出現率が100%にアップ', price: 5000 },
-    { id: 'kanjiColor', name: '🟢 漢字カラーチェンジ', desc: 'バトル中の問題テキストのカラーを「黄金・ネオン・エメラルド」などに切り替え可能', price: 10000, isUnique: true },
-    { id: 'expBook', name: '🟢 経験値2倍の書', desc: 'バトルの獲得EXPを2倍にする', price: 4000 }
+    { id: 'glasses', name: '🕶️ カンニンググラス', desc: '4択から不正解を2つ消す', price: 150 },
+    { id: 'timeStop', name: '⏰ タイムストップ', desc: '神級の制限時間をストップする', price: 300 },
+    { id: 'expBook', name: '📖 経験値2倍の書', desc: 'バトルの獲得EXPを2倍にする', price: 400 },
+    { id: 'rareFlute', name: '🪈 レアモンスターの笛', desc: '次回通常バトルでレアモンスター確定遭遇', price: 800 },
+    { id: 'kanjiColor', name: '🎨 漢字カラーチェンジ機能', desc: '漢字の文字色を自由に変更可能にする（永続）', price: 1500, isUnique: true }
   ];
 
   shopItems.forEach(item => {
@@ -1252,7 +1122,7 @@ function renderShop() {
       <div>
         <strong>${item.name}</strong>
         <p style="font-size:0.8rem; color:var(--text-sub);">${item.desc}</p>
-        <div style="font-size:0.85rem; color:#d97706; font-weight:bold; margin-top:2px;">💰 ${item.price.toLocaleString()} G</div>
+        <div style="font-size:0.85rem; color:#d97706; font-weight:bold; margin-top:2px;">💰 ${item.price} G</div>
       </div>
       <div>
         ${isOwned ? '<span style="color:#22c55e; font-weight:bold;">購入済み</span>' : `<button class="btn-action" onclick="buyItem('${item.id}', ${item.price}, ${item.isUnique || false})">購入</button>`}
@@ -1269,11 +1139,10 @@ function buyItem(id, price, isUnique) {
 
   if(id === 'rareFlute') {
     userState.fluteActive = true;
-    currentEncounters.normal = { monster: null, isShiny: false, isKing: false };
-    alert("🪈 「レアモンスターの笛」を使用しました！次回の出撃で希少モンスターが100%出現します！");
+    alert("🪈 「レアモンスターの笛」を使用しました！次回の出撃でレアモンスターが出現します！");
   } else if(isUnique) {
     userState.items[id] = true;
-    alert("🎨 漢字カラーチェンジ機能を購入しました！ミッション画面でテーマカラーを変更できます！");
+    alert("🎨 漢字カラーチェンジ機能を購入しました！ミッション画面で色を変更できます！");
   } else {
     userState.items[id] = (userState.items[id] || 0) + 1;
     alert("アイテムを購入しました！");
@@ -1284,10 +1153,12 @@ function buyItem(id, price, isUnique) {
   renderShop();
 }
 
+// 🎯 ミッション＆称号の描画
 function renderMissions() {
   const dailyList = document.getElementById('daily-list');
   const titleList = document.getElementById('title-list');
 
+  // デイリーミッション
   const dailyTarget = 20;
   const progress = Math.min(dailyTarget, userState.dailyProgress || 0);
   const isDone = progress >= dailyTarget;
@@ -1297,11 +1168,12 @@ function renderMissions() {
       <div style="font-weight:bold; font-size:0.9rem;">📝 本日20問に正解しよう！</div>
       <div style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">進捗: ${progress} / ${dailyTarget} 問</div>
       <div style="font-size:0.85rem; color:${isDone ? '#22c55e' : '#d97706'}; font-weight:bold; margin-top:4px;">
-        ${isDone ? '✅ 達成済み！' : '報酬: 2,000 G'}
+        ${isDone ? '✅ 達成済み！' : '報酬: 500 G'}
       </div>
     </div>
   `;
 
+  // 漢字カラーパネルの制御
   const colorPanel = document.getElementById('color-change-panel');
   if(userState.items.kanjiColor) {
     colorPanel.style.display = 'block';
@@ -1309,6 +1181,7 @@ function renderMissions() {
     colorPanel.style.display = 'none';
   }
 
+  // 称号リスト
   titleList.innerHTML = '';
   TITLE_MASTER_DATA.forEach(t => {
     const isUnlocked = userState.exp >= t.reqExp;
@@ -1344,6 +1217,7 @@ function setKanjiColor(hexColor) {
   alert("🎨 漢字の強調カラーを変更しました！");
 }
 
+// 📖 モンスター図鑑の描画
 function renderZukan() {
   const gridBox = document.getElementById('zukan-grid-box');
   gridBox.innerHTML = '';
@@ -1354,8 +1228,6 @@ function renderZukan() {
     const isDefeated = userState.defeatedMonsters.includes(m.id);
     if(isDefeated) defeatedCount++;
 
-    const variantData = userState.variants[m.id] || { shiny: false, king: false };
-
     const card = document.createElement('div');
     card.className = `zukan-card ${isDefeated ? '' : 'locked'}`;
 
@@ -1363,10 +1235,6 @@ function renderZukan() {
       <div class="z-icon">${isDefeated ? m.icon : '❓'}</div>
       <div class="z-name">${isDefeated ? m.name : '？？？？'}</div>
       <div class="z-rare">${'★'.repeat(m.rare)}</div>
-      <div class="zukan-badges">
-        ${variantData.shiny ? '<span class="badge badge-shiny">✨色違い</span>' : ''}
-        ${variantData.king ? '<span class="badge badge-king">👑KING</span>' : ''}
-      </div>
     `;
     gridBox.appendChild(card);
   });
@@ -1374,6 +1242,7 @@ function renderZukan() {
   document.getElementById('zukan-count').innerText = `${defeatedCount}/${MONSTER_DATABASE.length}`;
 }
 
+// 📊 学習ログの描画
 function renderStats() {
   document.getElementById('stat-total-q').innerText = `解いた問題数: ${userState.stats.totalAnswered}問`;
   
