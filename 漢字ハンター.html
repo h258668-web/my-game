@@ -382,7 +382,7 @@
     <!-- ITEM USE BAR -->
     <div class="item-bar">
       <button class="btn-item" onclick="useItem('glasses')">🕶️ カンニンググラス (<span id="item-glasses-count">0</span>)</button>
-      <button class="btn-item" onclick="useItem('timeStop')">⏰ タイムストップ (<span id="item-timeStop-count">0</span>)</button>
+      <button class="btn-item" onclick="useItem('timeStop')">⏰ タイムストップの時計 (<span id="item-timeStop-count">0</span>)</button>
       <button class="btn-item" onclick="useItem('expBook')">📖 経験値2倍の書 (<span id="item-expBook-count">0</span>)</button>
     </div>
 
@@ -430,11 +430,11 @@
         <div id="color-change-panel" style="margin-top:20px; display:none; border-top:2px solid #e2e8f0; padding-top:10px;">
           <h4>🎨 漢字カラー設定</h4>
           <p style="font-size:0.75rem; color:var(--text-sub); margin-bottom:8px;">漢字の強調テーマカラーを変更できます</p>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <div class="color-btn" style="background:#e11d48;" onclick="setKanjiColor('#e11d48')" title="ローズ"></div>
-            <div class="color-btn" style="background:#f59e0b;" onclick="setKanjiColor('#f59e0b')" title="ゴールド"></div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div class="color-btn" style="background:#f59e0b;" onclick="setKanjiColor('#f59e0b')" title="黄金"></div>
             <div class="color-btn" style="background:#10b981;" onclick="setKanjiColor('#10b981')" title="エメラルド"></div>
             <div class="color-btn" style="background:#8b5cf6;" onclick="setKanjiColor('#8b5cf6')" title="ネオンパープル"></div>
+            <div class="color-btn" style="background:#e11d48;" onclick="setKanjiColor('#e11d48')" title="ローズ"></div>
             <div class="color-btn" style="background:#06b6d4;" onclick="setKanjiColor('#06b6d4')" title="シアン"></div>
           </div>
         </div>
@@ -597,7 +597,7 @@ let scopedQuestions = [];
 
 let userState = {
   exp: 0,
-  gold: 1000,
+  gold: 10000,
   items: { 
     glasses: 0, 
     timeStop: 0, 
@@ -731,10 +731,10 @@ function checkLoginBonus() {
   const today = new Date().toLocaleDateString();
   if(userState.lastLogin !== today) {
     userState.lastLogin = today;
-    userState.gold += 1000;
+    userState.gold += 3000;
     userState.dailyProgress = 0;
     saveData();
-    openGenericModal("🎁 ログインボーナス", "今日も勉強がんばろう！<br><br><strong style='font-size:1.5rem; color:#b45309;'>+1000 G</strong>", "受け取る");
+    openGenericModal("🎁 ログインボーナス", "今日も勉強がんばろう！<br><br><strong style='font-size:1.5rem; color:#b45309;'>+3000 G</strong>", "受け取る");
   }
 }
 
@@ -831,7 +831,6 @@ function updateUI() {
   }
 }
 
-// 🎯 モンスター抽選・固定ロジック（クリアするまでモンスターを変更しない）
 function getEncounterForMode(mode) {
   if(mode === 'raid') {
     return {
@@ -845,7 +844,6 @@ function getEncounterForMode(mode) {
   if(mode === 'oni') categoryKey = 'oni';
   if(mode === 'god') categoryKey = 'god';
 
-  // 既に遭遇中のモンスターがいれば、それをそのまま返す（クリアまで固定）
   if (currentEncounters[categoryKey].monster) {
     return currentEncounters[categoryKey];
   }
@@ -878,7 +876,6 @@ function getEncounterForMode(mode) {
     if (Math.random() < 0.25) king = true;
   }
 
-  // 出現モンスターを記憶して固定する
   currentEncounters[categoryKey] = {
     monster: chosenMonster,
     isShiny: shiny,
@@ -888,7 +885,6 @@ function getEncounterForMode(mode) {
   return currentEncounters[categoryKey];
 }
 
-// クエスト終了時に固定を解除する関数
 function resetEncounter(mode) {
   let categoryKey = 'normal';
   if(mode === 'oni') categoryKey = 'oni';
@@ -945,7 +941,6 @@ function closeCutin() {
   renderQuestion();
 }
 
-// ⚔️ 戦闘描画
 function renderQuestion() {
   currentBattle.isProcessing = false;
   const q = currentBattle.qList[currentBattle.qIndex];
@@ -976,7 +971,6 @@ function renderQuestion() {
   document.getElementById('m-name').innerText = displayName;
   document.getElementById('m-hp-fill').style.width = `${currentBattle.monsterHp}%`;
 
-  // 🐛 修正箇所: 出題漢字が熟語内で複数・重複して含まれる場合もすべて赤色表示するようにグローバル正規表現（g）を使用
   const regex = new RegExp(q.kanji, 'g');
   const highlightedWord = q.word.replace(regex, `<span>${q.kanji}</span>`);
   document.getElementById('q-context').innerHTML = `【${highlightedWord}】の読み方は？`;
@@ -1129,8 +1123,10 @@ function useItem(type) {
     userState.items.glasses--;
   } else if(type === 'timeStop') {
     if(currentBattle.mode !== 'god') return alert("神級クエストでのみ使用可能です！");
-    stopTimer();
-    alert("⏰ タイムストップ発動！タイマーを停止しました！");
+    // タイムストップの時計：制限時間を10秒延長
+    currentBattle.timeLeft += 10;
+    currentBattle.maxTime += 10;
+    alert("⏰ タイムストップの時計発動！ 制限時間が10秒延長されました！");
     userState.items.timeStop--;
   } else if(type === 'expBook') {
     if(currentBattle.isDoubleExp) return alert("すでに効果が適用されています！");
@@ -1151,15 +1147,13 @@ function confirmEscape() {
 
 function finishBattle() {
   stopTimer();
-
-  // クエスト終了に伴い出現モンスターの固定を解除（次回新しいモンスターが抽選される）
   resetEncounter(currentBattle.mode);
   
   const total = currentBattle.qList.length;
   const acc = (currentBattle.correctCount / total);
   
   let baseExp = currentBattle.correctCount * 15;
-  let baseGold = currentBattle.correctCount * 20;
+  let baseGold = currentBattle.correctCount * 50;
 
   if(currentBattle.monster.expMult) baseExp *= currentBattle.monster.expMult;
   if(currentBattle.monster.goldMult) baseGold *= currentBattle.monster.goldMult;
@@ -1236,12 +1230,13 @@ function renderShop() {
   const shopList = document.getElementById('shop-list');
   shopList.innerHTML = '';
 
+  // 更新されたアイテム設定と価格
   const shopItems = [
-    { id: 'glasses', name: '🕶️ カンニンググラス', desc: '4択から不正解を2つ消す', price: 150 },
-    { id: 'timeStop', name: '⏰ タイムストップ', desc: '神級の制限時間をストップする', price: 300 },
-    { id: 'expBook', name: '📖 経験値2倍の書', desc: 'バトルの獲得EXPを2倍にする', price: 400 },
-    { id: 'rareFlute', name: '🪈 レアモンスターの笛', desc: '次回通常バトルでレアモンスター確定遭遇', price: 800 },
-    { id: 'kanjiColor', name: '🎨 漢字カラーチェンジ機能', desc: '漢字の文字色を自由に変更可能にする（永続）', price: 1500, isUnique: true }
+    { id: 'glasses', name: '🟢 カンニンググラス', desc: '4択問題で不正解の選択肢を2つ消去（50:50）', price: 5000 },
+    { id: 'timeStop', name: '🟢 タイムストップの時計', desc: '神級などの制限時間を10秒延長', price: 6000 },
+    { id: 'rareFlute', name: '🟢 レアモンスターの笛', desc: '次回のバトルで希少モンスターの出現率が100%にアップ', price: 5000 },
+    { id: 'kanjiColor', name: '🟢 漢字カラーチェンジ', desc: 'バトル中の問題テキストのカラーを「黄金・ネオン・エメラルド」などに切り替え可能', price: 10000, isUnique: true },
+    { id: 'expBook', name: '🟢 経験値2倍の書', desc: 'バトルの獲得EXPを2倍にする', price: 4000 }
   ];
 
   shopItems.forEach(item => {
@@ -1257,7 +1252,7 @@ function renderShop() {
       <div>
         <strong>${item.name}</strong>
         <p style="font-size:0.8rem; color:var(--text-sub);">${item.desc}</p>
-        <div style="font-size:0.85rem; color:#d97706; font-weight:bold; margin-top:2px;">💰 ${item.price} G</div>
+        <div style="font-size:0.85rem; color:#d97706; font-weight:bold; margin-top:2px;">💰 ${item.price.toLocaleString()} G</div>
       </div>
       <div>
         ${isOwned ? '<span style="color:#22c55e; font-weight:bold;">購入済み</span>' : `<button class="btn-action" onclick="buyItem('${item.id}', ${item.price}, ${item.isUnique || false})">購入</button>`}
@@ -1274,12 +1269,11 @@ function buyItem(id, price, isUnique) {
 
   if(id === 'rareFlute') {
     userState.fluteActive = true;
-    // レアの笛使用時は遭遇固定をリセットして確実に次回レアが出現するようにする
     currentEncounters.normal = { monster: null, isShiny: false, isKing: false };
-    alert("🪈 「レアモンスターの笛」を使用しました！次回の出撃でレアモンスターが出現します！");
+    alert("🪈 「レアモンスターの笛」を使用しました！次回の出撃で希少モンスターが100%出現します！");
   } else if(isUnique) {
     userState.items[id] = true;
-    alert("🎨 漢字カラーチェンジ機能を購入しました！ミッション画面で色を変更できます！");
+    alert("🎨 漢字カラーチェンジ機能を購入しました！ミッション画面でテーマカラーを変更できます！");
   } else {
     userState.items[id] = (userState.items[id] || 0) + 1;
     alert("アイテムを購入しました！");
@@ -1303,7 +1297,7 @@ function renderMissions() {
       <div style="font-weight:bold; font-size:0.9rem;">📝 本日20問に正解しよう！</div>
       <div style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">進捗: ${progress} / ${dailyTarget} 問</div>
       <div style="font-size:0.85rem; color:${isDone ? '#22c55e' : '#d97706'}; font-weight:bold; margin-top:4px;">
-        ${isDone ? '✅ 達成済み！' : '報酬: 500 G'}
+        ${isDone ? '✅ 達成済み！' : '報酬: 2,000 G'}
       </div>
     </div>
   `;
