@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ 漢字モンスターハンター ⚔️</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=M+PLUS+Rounded+1c:wght@700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- 横向き推奨オーバーレイ(このゲームは横画面プレイ専用) -->
+    <div id="orientation-warning">
+        <div class="rotate-icon">🔄📱</div>
+        <p>横画面にして<br>プレイしてください！</p>
+    </div>
+
+    <!-- 初回限定 ストーリーオープニング演出 -->
+    <div id="op-story-modal" class="modal-overlay hidden">
+        <div class="story-box">
+            <!-- フェーズ1: 平和 -->
+            <div id="op-phase-1" class="op-phase">
+                <div class="story-icon">☀️ 🏰 🌳</div>
+                <p class="story-text">かつて、人々は 漢字の『文字神（モジシン）』とともに、平和に 暮らしていた……</p>
+                <button id="btn-op-next-1" class="btn-pop btn-sm">次へ ▶</button>
+            </div>
+
+            <!-- フェーズ2: 暗転＆襲来 -->
+            <div id="op-phase-2" class="op-phase hidden">
+                <div class="flash-lightning">⚡ ⚠️ 👹</div>
+                <p class="story-text danger-text">——しかし！ 人々が 漢字を 忘れかけたとき、文字神は 乱れ狂い……<br><br><strong>モンスターたちが まちを 襲い始めた！！</strong></p>
+                <button id="btn-op-next-2" class="btn-pop btn-sm btn-danger">大変だ！ ▶</button>
+            </div>
+
+            <!-- フェーズ3: 長老の言葉 -->
+            <div id="op-phase-3" class="op-phase hidden">
+                <div class="elder-avatar">👴</div>
+                <div class="elder-msg-box">
+                    <p id="elder-text" class="elder-text"></p>
+                </div>
+                <button id="btn-op-finish" class="btn-pop btn-large btn-success hidden">冒険へでかける！</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RENEWAL UPDATE演出(既存プレイヤーがアップデート後に初めて開いた時だけ) -->
+    <div id="renewal-update-modal" class="modal-overlay hidden">
+        <div class="renewal-content">
+            <div class="renewal-burst">🧱✨🧱✨🧱</div>
+            <h1 class="renewal-title">✨ RENEWAL UPDATE ✨</h1>
+            <p class="renewal-sub">ゲームが新しくなったよ！</p>
+            <ul class="renewal-list">
+                <li>✊ モンスターじゃんけん(1日1回)が新登場！</li>
+                <li>🎁 ボス撃破後、宝箱が出るかも…！？</li>
+                <li>📖 漢字にふりがなが付いて読みやすく！</li>
+                <li>🗾 全国制覇の都道府県モードも強化！</li>
+            </ul>
+            <button id="btn-renewal-close" class="btn-pop btn-success btn-large">冒険を続ける！</button>
+        </div>
+    </div>
+
+    <!-- 超激レア 1/500 暗転カットイン -->
+    <div id="ultra-cutin" class="modal-overlay hidden">
+        <div class="ultra-cutin-content">
+            <div class="flash-lightning">⚡</div>
+            <div class="ultra-alert">⚠️ WARNING ⚠️</div>
+            <div id="ultra-monster-icon" class="ultra-monster-icon"></div>
+            <h1 id="ultra-monster-name" class="ultra-title">創世神アルティメット・オーディン</h1>
+            <p class="ultra-sub">1/500 超超超超超激レア出現！！【報酬10倍】</p>
+            <button id="btn-ultra-start" class="btn-pop btn-danger">バトル開始！</button>
+        </div>
+    </div>
+
+    <!-- ライバル登場カットイン(たまにしか出現しない特別な宿敵) -->
+    <div id="rival-cutin" class="modal-overlay hidden">
+        <div class="rival-cutin-content">
+            <div class="rival-vs-tag">対決！</div>
+            <div id="rival-monster-icon" class="rival-monster-icon">⚔️</div>
+            <p class="rival-alert">ライバル、あらわる！！</p>
+            <h1 id="rival-monster-name" class="rival-title">ライバル名</h1>
+            <p id="rival-monster-quote" class="rival-quote">「セリフがここに入ります」</p>
+            <p id="rival-partner-info" class="rival-partner-info">相棒: 🦎 モンスター名</p>
+            <p class="rival-sub">【報酬2倍】たまにしか出会えない強敵だ…！</p>
+            <button id="btn-rival-start" class="btn-pop btn-danger">受けて立つ！</button>
+        </div>
+    </div>
+
+    <!-- クエスト解放カットイン(鬼級/神級/全国制覇) -->
+    <!-- 全国制覇モード解放 専用カットシーン(6フェーズ) -->
+    <div id="japan-unlock-cutscene" class="modal-overlay hidden">
+        <div class="cutscene-box">
+            <!-- フェーズ1: 異変の兆候 -->
+            <div id="jc-phase-1" class="jc-phase">
+                <div class="jc-alert-text">！？！？</div>
+                <div id="jc-party-icons" class="jc-party-icons"></div>
+                <p class="jc-caption">なかまたちが、何かに おびえている……！</p>
+                <button id="btn-jc-next-1" class="btn-pop btn-sm">つぎへ ▶</button>
+            </div>
+
+            <!-- フェーズ2: 日本列島の陥落 -->
+            <div id="jc-phase-2" class="jc-phase hidden">
+                <p class="jc-caption">日本列島が、南へ向かって 闇に 飲み込まれていく……</p>
+                <div id="jc-map-grid" class="jc-map-grid"></div>
+            </div>
+
+            <!-- フェーズ3: 各地への刺客 -->
+            <div id="jc-phase-3" class="jc-phase hidden">
+                <p class="jc-caption">闇の中から、強力なモンスターたちが 現れた……！</p>
+                <div id="jc-enemy-grid" class="jc-enemy-grid"></div>
+            </div>
+
+            <!-- フェーズ4: 相棒の連れ去り -->
+            <div id="jc-phase-4" class="jc-phase hidden">
+                <p class="jc-caption">高知から、巨大な 闇の手が……！</p>
+                <div class="jc-kidnap-scene">
+                    <span id="jc-partner-icon" class="jc-partner-icon">👾</span>
+                    <span class="jc-dark-hand">🖐️</span>
+                </div>
+            </div>
+
+            <!-- フェーズ5: ラスボスの宣戦布告 -->
+            <div id="jc-phase-5" class="jc-phase hidden">
+                <div class="jc-boss-avatar">🐲</div>
+                <div class="elder-msg-box">
+                    <p id="jc-boss-text" class="elder-text"></p>
+                </div>
+                <button id="btn-jc-next-5" class="btn-pop btn-danger hidden">くやしい……！</button>
+            </div>
+
+            <!-- フェーズ6: 旅立ち -->
+            <div id="jc-phase-6" class="jc-phase hidden">
+                <div class="jc-alert-text">🗾 全国制覇モード解禁！</div>
+                <p class="jc-caption">めざせ！ 全国の 仲間を すくって 日本を すくえ！</p>
+                <button id="btn-jc-finish" class="btn-pop btn-large btn-success">たびだつ！</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ラスボス撃破 専用カットシーン(5フェーズ) -->
+    <div id="boss-defeat-cutscene" class="modal-overlay hidden">
+        <div class="cutscene-box bd-box">
+            <!-- フェーズ1: 撃破・救出・浄化・全国制覇バナー -->
+            <div id="bd-phase-1" class="jc-phase">
+                <div id="bd-boss-icon" class="bd-boss-icon">🐲</div>
+                <div id="bd-partner-icon" class="bd-partner-icon hidden">👾</div>
+                <p id="bd-step-caption" class="jc-caption"></p>
+                <div id="bd-map-grid" class="jc-map-grid hidden"></div>
+                <div id="bd-banner" class="bd-banner hidden">🏆 全国制覇達成 🏆</div>
+            </div>
+
+            <!-- フェーズ2: 長老の祝福と報酬 -->
+            <div id="bd-phase-2" class="jc-phase hidden">
+                <div class="jc-boss-avatar">👴</div>
+                <div class="elder-msg-box">
+                    <p id="bd-elder-text" class="elder-text"></p>
+                </div>
+                <div id="bd-reward-box" class="bd-reward-box hidden">
+                    <p>🏷️ 称号「【日本一の漢字マスター】」を獲得！</p>
+                    <p>💰 ボーナス 30,000 G 獲得！</p>
+                </div>
+                <button id="btn-bd-next-2" class="btn-pop btn-success hidden">やったぞ！</button>
+            </div>
+
+            <!-- フェーズ3: 突如の異変 -->
+            <div id="bd-phase-3" class="jc-phase hidden">
+                <div class="bd-storm-cloud">🌩️🟣🌩️</div>
+                <div class="jc-boss-avatar">👴</div>
+                <div class="elder-msg-box">
+                    <p id="bd-elder-text-2" class="elder-text"></p>
+                </div>
+                <button id="btn-bd-next-3" class="btn-pop btn-danger hidden">な、なんだと……！</button>
+            </div>
+
+            <!-- フェーズ4: 漢字タワー出現 -->
+            <div id="bd-phase-4" class="jc-phase hidden">
+                <div id="bd-tower-icon" class="bd-tower-icon">🗼</div>
+                <div id="bd-tower-title" class="bd-tower-title hidden">★試練の巨塔『漢字タワー』現る！★</div>
+                <p id="bd-voice-text" class="jc-caption"></p>
+                <button id="btn-bd-next-4" class="btn-pop btn-danger hidden">受けて立つ！</button>
+            </div>
+
+            <!-- フェーズ5: 漢字タワー解禁 -->
+            <div id="bd-phase-5" class="jc-phase hidden">
+                <div class="jc-alert-text">🗼 漢字タワー 解禁！</div>
+                <p class="jc-caption">選択画面に「漢字タワー」が追加されたぞ！<br>自分の限界に挑戦しよう！</p>
+                <button id="btn-bd-finish" class="btn-pop btn-large btn-success">冒険を続ける！</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="unlock-cutin" class="modal-overlay hidden">
+        <div class="unlock-cutin-content">
+            <div id="unlock-cutin-icon" class="unlock-cutin-icon">👹</div>
+            <h1 id="unlock-cutin-title" class="unlock-cutin-title">解放！</h1>
+            <p id="unlock-cutin-sub" class="unlock-cutin-sub">新しいクエストが解放されました！</p>
+            <div id="unlock-boss-message" class="unlock-boss-message hidden">
+                <span id="unlock-boss-icon" class="unlock-boss-icon">👹</span>
+                <p id="unlock-boss-text" class="unlock-boss-text"></p>
+            </div>
+            <button id="btn-unlock-ok" class="btn-pop btn-success">よし！</button>
+        </div>
+    </div>
+
+    <!-- モンスタールーレット(1日1回) -->
+    <div id="modal-janken" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>🎰 モンスタールーレット</h2>
+            <div id="janken-monster-icon" class="janken-monster-icon">👾</div>
+            <p id="janken-monster-name" class="janken-monster-name"></p>
+
+            <div id="janken-intro" class="janken-intro">
+                <p class="janken-challenge-text">レバーを回して運試し！</p>
+                <div class="roulette-wheel-wrap">
+                    <div class="roulette-pointer">🔻</div>
+                    <div id="roulette-wheel" class="roulette-wheel">
+                        <span class="wheel-label" style="transform: translate(-50%, -50%) rotate(9deg) translateY(-62px);">💎</span>
+                        <span class="wheel-label" style="transform: translate(-50%, -50%) rotate(54deg) translateY(-62px);">🎉</span>
+                        <span class="wheel-label" style="transform: translate(-50%, -50%) rotate(144deg) translateY(-62px);">⭐</span>
+                        <span class="wheel-label" style="transform: translate(-50%, -50%) rotate(279deg) translateY(-62px);">💦</span>
+                    </div>
+                </div>
+                <button id="btn-roulette-spin" class="btn-pop btn-large btn-success">レバーを回す！</button>
+            </div>
+
+            <div id="janken-done" class="hidden">
+                <p class="janken-challenge-text">今日はもう挑戦したよ。また明日挑戦してね！</p>
+            </div>
+
+            <div id="janken-result" class="janken-result hidden">
+                <p id="janken-result-text" class="janken-result-text"></p>
+                <p id="janken-result-msg" class="janken-result-msg"></p>
+            </div>
+
+            <button id="btn-close-janken" class="btn-pop btn-sm">閉じる</button>
+        </div>
+    </div>
+
+    <!-- 宝箱モーダル(ボス撃破後 1/100 で出現) -->
+    <div id="modal-chest" class="modal-overlay hidden">
+        <div class="modal-content chest-modal">
+            <h2>🎁 宝箱が出現！</h2>
+            <div id="chest-slot" class="chest-slot">🪵</div>
+            <p id="chest-result-text" class="chest-result-text"></p>
+            <p id="chest-loot-text" class="chest-loot-text"></p>
+            <button id="btn-close-chest" class="btn-pop btn-success hidden">受け取る！</button>
+        </div>
+    </div>
+
+    <!-- ゲームコンテナ -->
+    <div id="game-container">
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- 共通ヘッダー（ステータス表示） -->
+        <header id="main-header">
+            <div class="player-info">
+                <div class="player-avatar">🤠</div>
+                <div class="player-details">
+                    <div class="player-name-row">
+                        <span id="player-title" class="title-badge title-badge-clickable">【駆け出し漢士】</span>
+                        <span id="player-level">レベル1</span>
+                    </div>
+                    <div class="exp-row">
+                        <div class="exp-bar-container">
+                            <div id="exp-bar-fill" class="exp-bar-fill" style="width: 0%;"></div>
+                            <span id="exp-text" class="exp-text">0 / 100 EX</span>
+                        </div>
+                        <p id="next-title-hint" class="next-title-hint"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="currency-info">
+                <span class="gold-icon">💰</span>
+                <span id="player-gold">0 G</span>
+            </div>
+        </header>
+
+        <!-- 相棒パートナー表示ミニ枠 -->
+        <div id="partner-bar" class="partner-bar-box">
+            <span class="partner-label">相棒:</span>
+            <span id="partner-icon" class="partner-mini-icon">❓</span>
+            <span id="partner-name" class="partner-mini-name">なし</span>
+            <span id="partner-hearts" class="partner-mini-hearts"></span>
+        </div>
+
+        <!-- 1. タイトル画面 -->
+        <section id="scene-title" class="scene active">
+            <div class="landscape-row">
+                <div class="title-logo-box">
+                    <div class="voxel-decoration">🧱 ⚔️ 🧱</div>
+                    <h1 class="game-title">漢字モンスター<br><span class="title-sub">ハンター</span></h1>
+                    <p class="title-catch">〜ボクセル世界で漢字バトル！〜</p>
+                </div>
+                <div class="landscape-col">
+                    <div class="title-mascot">👾</div>
+                    <button id="btn-title-start" class="btn-pop btn-large">ゲームスタート！</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. お約束画面 -->
+        <section id="scene-rules" class="scene hidden">
+            <div class="card-box">
+                <h2>📜 ハンターのお約束 📜</h2>
+                <p class="rule-question">あなたは、学校やお家のルールを守って、ゲームをすることができますか。</p>
+                
+                <div class="rule-buttons">
+                    <button id="btn-rules-yes" class="btn-pop btn-large btn-success">はい</button>
+                    <button id="btn-rules-no" class="btn-pop btn-large btn-danger">いいえ</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. モード選択画面 -->
+        <section id="scene-select" class="scene hidden">
+            <div class="select-header">
+                <h2>🗺️ モード選択 🗺️</h2>
+                <div class="sub-nav-btns">
+                    <button id="btn-open-shop" class="btn-pop btn-sm">🛍️ ショップ</button>
+                    <button id="btn-open-zukan" class="btn-pop btn-sm">📖 図鑑</button>
+                    <div class="roulette-btn-wrap">
+                        <button id="btn-open-janken" class="btn-pop btn-sm">🎰 モンスタールーレット</button>
+                        <div id="roulette-bubble" class="roulette-bubble hidden">1日1回チャレンジ！</div>
+                    </div>
+                    <button id="btn-reset-data" class="btn-pop btn-sm btn-danger">🔄 リセット</button>
+                </div>
+            </div>
+
+            <div id="range-badge" class="range-badge-box">出題範囲: 1 〜 200</div>
+
+            <div id="quest-list" class="quest-grid">
+                <div class="quest-col quest-col-normal">
+                    <p class="quest-col-label">⚔️ 通常クエスト</p>
+                    <div class="quest-card quest-beginner" data-quest="beginner">
+                        <div class="quest-icon">🌱</div>
+                        <div class="quest-info">
+                            <h3>初級クエスト</h3>
+                            <p>報酬: 50 G / 30 EX</p>
+                            <p class="quest-rule-text">全10問・9問正解でクリア(4択・時間制限なし)</p>
+                        </div>
+                    </div>
+                    <div class="quest-card quest-intermediate" data-quest="intermediate">
+                        <div class="quest-icon">⚔️</div>
+                        <div class="quest-info">
+                            <h3>中級クエスト</h3>
+                            <p>報酬: 100 G / 60 EX</p>
+                            <p class="quest-rule-text">全10問・9問正解でクリア(4択・1問20秒)</p>
+                        </div>
+                    </div>
+                    <div class="quest-card quest-advanced" data-quest="advanced">
+                        <div class="quest-icon">🔥</div>
+                        <div class="quest-info">
+                            <h3>上級クエスト</h3>
+                            <p>報酬: 200 G / 120 EX</p>
+                            <p class="quest-rule-text">全10問・9問正解でクリア(記述・時間制限なし)</p>
+                        </div>
+                    </div>
+
+                    <div id="card-oni" class="quest-card quest-locked">
+                        <div class="quest-icon">🔒</div>
+                        <div class="quest-info">
+                            <h3>？？？？？</h3>
+                            <p id="oni-hint" class="hint-text">上級をあと 3 回クリアで解放…！？</p>
+                        </div>
+                    </div>
+
+                    <div id="card-kami" class="quest-card quest-locked">
+                        <div class="quest-icon">🔒</div>
+                        <div class="quest-info">
+                            <h3>？？？？？</h3>
+                            <p id="kami-hint" class="hint-text">鬼級をあと 5 回クリアで解放…！？</p>
+                        </div>
+                    </div>
+
+                <div id="card-tower" class="quest-card hidden">
+                    <div class="quest-icon">🗼</div>
+                    <div class="quest-info">
+                        <h3>漢字タワー</h3>
+                        <p class="quest-rule-text">無限の試練。挑戦には50G必要(1問正解で1階UP)</p>
+                    </div>
+                </div>
+                </div>
+
+                <div class="quest-col quest-col-special">
+                    <p class="quest-col-label">✨ 特殊クエスト</p>
+                    <div id="card-japan" class="quest-card quest-locked">
+                        <div class="quest-icon">🔒</div>
+                        <div class="quest-info">
+                            <h3>？？？？？</h3>
+                            <p id="japan-hint" class="hint-text">神級をあと 10 回クリアで全国開放…！？</p>
+                        </div>
+                    </div>
+                    <div id="card-weekly" class="quest-card"></div>
+                    <div id="card-review" class="quest-card"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4a. 全国制覇: 地方選択画面 -->
+        <section id="scene-region-select" class="scene hidden">
+            <div class="map-header">
+                <h2>🗾 全国制覇モード 🗾</h2>
+                <p>地方を選んでね！(制覇: <span id="prefectures-cleared-region">0</span>/47)</p>
+                <p id="japan-theme-label" class="japan-theme-label"></p>
+                <button id="btn-region-back-to-select" class="btn-pop btn-sm">戻る</button>
+            </div>
+            <div id="region-grid" class="region-grid"></div>
+        </section>
+
+        <!-- 4b. 全国制覇: 地方別 都道府県選択画面 -->
+        <section id="scene-japan-map" class="scene hidden">
+            <div class="map-header">
+                <h2 id="region-map-title">🗾 全国制覇モード 🗾</h2>
+                <p>地形を押して挑戦！(制覇: <span id="prefectures-cleared">0</span>/47)</p>
+                <button id="btn-back-to-select" class="btn-pop btn-sm">地方選択へ</button>
+            </div>
+            <div id="japan-grid" class="japan-grid"></div>
+        </section>
+
+        <!-- 5. バトル画面 -->
+        <section id="scene-battle" class="scene hidden">
+            <div class="battle-top-bar">
+                <div id="timer-box" class="timer-box">⏰ <span id="timer-val">15</span>s</div>
+                <div id="battle-progress" class="battle-progress-tag"></div>
+                <div id="battle-quest-name" class="battle-quest-tag">初級</div>
+                <button id="btn-battle-flee" class="btn-pop btn-sm btn-danger">🏳️ にげる</button>
+            </div>
+
+            <div class="battle-layout">
+                <div class="battle-left-spacer"></div>
+
+                <div class="battle-center">
+                    <div id="monster-area" class="monster-card">
+                        <div id="monster-shiny-tag" class="shiny-tag hidden">✨ SHINY ✨</div>
+                        <div id="monster-avatar" class="monster-avatar">🟩</div>
+                        <h3 id="monster-name">ピクセル・スライム</h3>
+                        <div class="hp-bar-box">
+                            <div id="monster-hp-fill" class="hp-bar-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- パートナー攻撃演出 -->
+                    <div id="battle-partner-attack-zone" class="partner-attack-zone hidden">
+                        <span id="battle-partner-anim-icon" class="partner-attack-icon">👾</span>
+                        <span class="attack-text">相棒のこうげき！💥</span>
+                    </div>
+
+                    <div class="quiz-box">
+                        <div id="quiz-example" class="quiz-example">「<span class="quiz-word no-furigana">例文</span>」の<span class="quiz-question-tail">読み方は？</span></div>
+                    </div>
+
+                    <!-- 4択入力 UI -->
+                    <div id="ui-choices" class="choices-grid">
+                        <button class="choice-btn btn-pop" data-idx="0">選択肢1</button>
+                        <button class="choice-btn btn-pop" data-idx="1">選択肢2</button>
+                        <button class="choice-btn btn-pop" data-idx="2">選択肢3</button>
+                        <button class="choice-btn btn-pop" data-idx="3">選択肢4</button>
+                    </div>
+
+                    <!-- 記述式（高知ラスボス用）入力 UI -->
+                    <div id="ui-typing" class="typing-box hidden">
+                        <input type="text" id="typing-input" placeholder="ひらがなで入力..." autocomplete="off">
+                        <button id="btn-typing-submit" class="btn-pop">攻撃！</button>
+                    </div>
+                </div>
+
+                <div class="battle-items">
+                    <button id="btn-use-glasses" class="btn-item">
+                        <span class="btn-item-icon">👓</span>
+                        <span class="btn-item-label">2択消去</span>
+                        <span class="btn-item-count">×<span id="count-glasses">0</span></span>
+                    </button>
+                    <button id="btn-use-clock" class="btn-item">
+                        <span class="btn-item-icon">⏱️</span>
+                        <span class="btn-item-label">+10秒</span>
+                        <span class="btn-item-count">×<span id="count-clock">0</span></span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 漢字タワー(無限の試練) -->
+        <section id="scene-tower" class="scene hidden">
+            <div class="battle-top-bar">
+                <div class="timer-box">⏰ <span id="tower-timer-val">10</span>s</div>
+                <div class="battle-progress-tag">🗼 <span id="tower-floor-num">1</span>階</div>
+                <div class="battle-progress-tag">💰<span id="tower-gold">0</span>G <span id="tower-fever-tag" class="tower-fever-tag hidden">🔥FEVER</span></div>
+                <button id="btn-tower-flee" class="btn-pop btn-sm btn-danger">🏳️ やめる</button>
+            </div>
+
+            <div class="battle-layout">
+                <div class="battle-top">
+                    <div class="monster-card">
+                        <div class="tower-icon-display">🗼</div>
+                        <h3>連続正解 <span id="tower-streak">0</span></h3>
+                    </div>
+                </div>
+
+                <div class="battle-mid">
+                    <div class="quiz-box">
+                        <div id="tower-example" class="quiz-example">「<span class="quiz-word no-furigana">例文</span>」の<span class="quiz-question-tail">読み方は？</span></div>
+                    </div>
+                </div>
+
+                <div class="battle-bottom">
+                    <div id="tower-choices" class="choices-grid">
+                        <button class="choice-btn btn-pop tower-choice-btn" data-idx="0">選択肢1</button>
+                        <button class="choice-btn btn-pop tower-choice-btn" data-idx="1">選択肢2</button>
+                        <button class="choice-btn btn-pop tower-choice-btn" data-idx="2">選択肢3</button>
+                        <button class="choice-btn btn-pop tower-choice-btn" data-idx="3">選択肢4</button>
+                    </div>
+
+                    <div id="tower-typing" class="typing-box hidden">
+                        <input type="text" id="tower-typing-input" placeholder="ひらがなで入力..." autocomplete="off">
+                        <button id="btn-tower-typing-submit" class="btn-pop">攻撃！</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. ボーナスミニゲーム: ブロックくずし(クエスト5回クリアごとに出現) -->
+        <section id="scene-minigame" class="scene hidden">
+            <div class="minigame-header">
+                <h2>🧱 ボーナスブロックくずし！</h2>
+                <p class="minigame-caption">5回クリアのごほうび！ブロックを壊してGゲット！ (残機 <span id="breakout-lives">3</span> / スコア <span id="breakout-score">0</span>G)</p>
+            </div>
+            <canvas id="breakout-canvas" width="300" height="380"></canvas>
+            <div class="minigame-controls">
+                <button id="btn-breakout-left" class="btn-pop btn-large">◀</button>
+                <button id="btn-breakout-right" class="btn-pop btn-large">▶</button>
+            </div>
+            <button id="btn-breakout-skip" class="btn-pop btn-sm">スキップする</button>
+        </section>
+
+        <!-- 6. ショップモーダル -->
+        <div id="modal-shop" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2>🛍️ 高額ハンターショップ 🛍️</h2>
+                <div class="shop-list">
+                    <div class="shop-item">
+                        <div class="item-icon">👓</div>
+                        <div class="item-desc">
+                            <h4>カンニンググラス</h4>
+                            <p>4択から不正解を2つ消去</p>
+                        </div>
+                        <button class="btn-buy btn-pop" data-item="glasses" data-price="5000">5,000G</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-icon">⏱️</div>
+                        <div class="item-desc">
+                            <h4>タイムストップの時計</h4>
+                            <p>バトル制限時間を10秒延長</p>
+                        </div>
+                        <button class="btn-buy btn-pop" data-item="clock" data-price="6000">6,000G</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-icon">🎺</div>
+                        <div class="item-desc">
+                            <h4>レアモンスターの笛</h4>
+                            <p>次回レア/超激レア率100%</p>
+                        </div>
+                        <button class="btn-buy btn-pop" data-item="whistle" data-price="9000">9,000G</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-icon">🎨</div>
+                        <div class="item-desc">
+                            <h4>漢字カラーチェンジ</h4>
+                            <p>漢字の表示色を変更可能に</p>
+                        </div>
+                        <button class="btn-buy btn-pop" data-item="color" data-price="10000">10,000G</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-icon">📜</div>
+                        <div class="item-desc">
+                            <h4>経験値2倍の書</h4>
+                            <p>獲得EXPが永続で2倍！</p>
+                        </div>
+                        <button class="btn-buy btn-pop" data-item="expScroll" data-price="4000">4,000G</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-icon">💊</div>
+                        <div class="item-desc">
+                            <h4>回復薬</h4>
+                            <p>相棒モンスターのライフを全回復</p>
+                        </div>
+                        <button class="btn-buy btn-pop" data-item="potion" data-price="5000">5,000G</button>
+                    </div>
+                </div>
+                <button id="btn-close-shop" class="btn-pop btn-sm">閉じる</button>
+            </div>
+        </div>
+
+        <!-- 7. 図鑑モーダル -->
+        <!-- 称号選択モーダル -->
+    <!-- 漢字タワー 挑戦モーダル -->
+    <div id="modal-tower-intro" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>🗼 漢字タワー</h2>
+            <p class="zukan-sub-text">
+                無限に続く試練の塔。1問正解するごとに1階のぼれる！<br>
+                ミスまたはタイムオーバーで即終了、また1階からやりなおしじゃ。<br>
+                上の階ほど、制限時間が短く・問題も難しくなるぞ。<br>
+                15連続正解で「フィーバーモード」発動、獲得ゴールドが3倍に！
+            </p>
+            <p class="tower-stats-line">🏆 自己ベスト: <span id="tower-best-floor">0</span>階　📅 今週のベスト: <span id="tower-weekly-best">0</span>階</p>
+            <button id="btn-tower-start" class="btn-pop btn-large btn-danger">挑戦する！(50G)</button>
+            <button id="btn-close-tower-intro" class="btn-pop btn-sm">閉じる</button>
+        </div>
+    </div>
+
+    <div id="modal-title-select" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>🏷️ 称号を選ぶ</h2>
+            <p class="zukan-sub-text">獲得した称号の中から、表示する称号を自由に選べます。</p>
+            <div id="title-select-list" class="title-select-list"></div>
+            <button id="btn-close-title-select" class="btn-pop btn-sm">閉じる</button>
+        </div>
+    </div>
+
+    <div id="modal-zukan" class="modal-overlay hidden">
+            <div class="modal-content modal-large">
+                <h2>📖 モンスター図鑑 📖</h2>
+                <p class="zukan-sub-text">獲得したモンスターを選んで「相棒」にしよう！<br>⚠️失敗3回で相棒は消滅してしまいます。</p>
+                <div id="hidden-titles-box" class="hidden-titles-box"></div>
+                <div id="zukan-grid" class="zukan-grid"></div>
+                <button id="btn-close-zukan" class="btn-pop btn-sm">閉じる</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="monster-images.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
